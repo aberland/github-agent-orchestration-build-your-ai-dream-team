@@ -1,0 +1,36 @@
+{
+  "projects": [
+    {
+      "name": "Atlas onboarding",
+      "owner": "Maya Chen",
+      "status": "On track",
+      "recentActivity": "Published the revised welcome flow for team review.",
+      "priority": "High",
+      "summary": "Make the first-run experience clearer and faster for new customers."
+    },
+    {
+      "name": "Mobile performance",
+      "owner": "Jordan Lee",
+      "status": "At risk",
+      "recentActivity": "The image-loading improvements are ready; profiling is still in progress.",
+      "priority": "Medium",
+      "summary": "Reduce startup time and improve responsiveness on older devices."
+    },
+    {
+      "name": "Billing platform refresh",
+      "owner": "Sam Rivera",
+      "status": "Blocked",
+      "recentActivity": "Waiting on the sandbox credentials needed to complete payment testing.",
+      "priority": "High",
+      "summary": "Modernize billing services while keeping existing subscriptions uninterrupted."
+    },
+    {
+      "name": "Help center redesign",
+      "owner": "Avery Patel",
+      "status": "Active",
+      "recentActivity": "Completed the updated article templates and began content migration.",
+      "priority": "Low",
+      "summary": "Help customers find accurate answers with less effort."
+    }
+  ]
+}

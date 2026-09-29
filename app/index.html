@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A quick overview of project health, ownership, and recent activity.">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="dashboard">
+      <header class="dashboard__header">
+        <p class="dashboard__eyebrow">Team overview</p>
+        <h1>Project Pulse</h1>
+        <p>A clear view of what’s moving, what needs attention, and who’s on it.</p>
+      </header>
+
+      <section class="dashboard__projects" aria-labelledby="projects-heading">
+        <div class="dashboard__section-header">
+          <div>
+            <p class="dashboard__eyebrow">Across the team</p>
+            <h2 id="projects-heading">Projects</h2>
+          </div>
+        </div>
+        <div id="dashboard-message" class="dashboard-message" role="status" aria-live="polite">
+          Loading projects…
+        </div>
+        <div id="project-list" class="project-grid" aria-live="off"></div>
+      </section>
+    </main>
+
+    <script>
+      const dataSource = "project-data.json";
+      const message = document.querySelector("#dashboard-message");
+      const projectList = document.querySelector("#project-list");
+      const requiredFields = ["name", "owner", "status", "recentActivity", "priority"];
+
+      function createTextElement(tagName, className, text) {
+        const element = document.createElement(tagName);
+        element.className = className;
+        element.textContent = text;
+        return element;
+      }
+
+      function modifierName(value) {
+        return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      }
+
+      function createProjectCard(project) {
+        const card = document.createElement("article");
+        card.className = "project-card";
+        card.setAttribute("aria-label", project.name);
+
+        const header = document.createElement("header");
+        header.className = "project-card__header";
+        const statusBadge = createTextElement("span", "status-badge", project.status);
+        statusBadge.classList.add(`status-badge--${modifierName(project.status)}`);
+        header.append(
+          createTextElement("h3", "project-card__title", project.name),
+          statusBadge
+        );
+        card.append(header);
+        card.append(
+          createTextElement("p", "project-card__meta", `Owned by ${project.owner}`)
+        );
+
+        card.append(
+          createTextElement("p", "project-card__activity", project.recentActivity)
+        );
+        const priorityBadge = createTextElement(
+          "span",
+          "priority-badge",
+          `Priority: ${project.priority}`
+        );
+        priorityBadge.classList.add(`priority-badge--${modifierName(project.priority)}`);
+        card.append(priorityBadge);
+
+        if (project.summary) {
+          card.append(createTextElement("p", "project-card__summary", project.summary));
+        }
+        return card;
+      }
+
+      async function loadProjects() {
+        try {
+          const response = await fetch(dataSource);
+          if (!response.ok) {
+            throw new Error(`Could not load project data (${response.status} ${response.statusText}).`);
+          }
+
+          const data = await response.json();
+          if (!data || !Array.isArray(data.projects)) {
+            throw new Error('Project data must contain a "projects" array.');
+          }
+
+          for (const [index, project] of data.projects.entries()) {
+            if (!project || requiredFields.some((field) =>
+              typeof project[field] !== "string" || project[field].trim() === ""
+            )) {
+              throw new Error(`Project ${index + 1} is missing a required text field.`);
+            }
+          }
+
+          if (data.projects.length === 0) {
+            message.textContent = "No projects to show yet.";
+            return;
+          }
+
+          const cards = data.projects.map(createProjectCard);
+          projectList.replaceChildren(...cards);
+          message.remove();
+        } catch (error) {
+          console.error("Unable to display Project Pulse data:", error);
+          message.setAttribute("role", "alert");
+          message.setAttribute("aria-live", "assertive");
+          message.textContent = "Projects couldn’t be loaded. Please check the project data and try again.";
+        }
+      }
+
+      loadProjects();
+    </script>
+  </body>
+</html>
